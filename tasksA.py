@@ -28,12 +28,8 @@ def A1(email="23ds3000040@ds.study.iitm.ac.in"):
         raise HTTPException(status_code=500, detail=f"Error: {e.stderr}")
 # A1()
 def A2(prettier_version="prettier@3.4.2", filename="/data/format.md"):
+    command = [r"C:\Program Files\nodejs\npx.cmd", prettier_version, "--write", filename]
     try:
-        # Ensure Prettier is installed
-        subprocess.run(["npm", "install", prettier_version], check=True)
-
-        # Use npx to run prettier
-        command = ["npx", prettier_version, "--write", filename]
         subprocess.run(command, check=True)
         print("Prettier executed successfully.")
     except subprocess.CalledProcessError as e:
@@ -210,12 +206,22 @@ def get_embedding(text):
         "Content-Type": "application/json",
         "Authorization": f"Bearer {AIPROXY_TOKEN}"
     }
+    
+    if not AIPROXY_TOKEN:
+        raise Exception("AIPROXY_TOKEN is not set. Please check your .env file.")
+
     data = {
         "model": "text-embedding-3-small",
         "input": [text]
     }
-    response = requests.post("http://aiproxy.sanand.workers.dev/openai/v1/embeddings", headers=headers, data=json.dumps(data))
+
+    response = requests.post("https://aiproxy.sanand.workers.dev/openai/v1/embeddings", headers=headers, data=json.dumps(data))
+    
+    if response.status_code == 401:
+        raise Exception("Unauthorized: Please check your API token and ensure it's valid.")
+    
     response.raise_for_status()
+
     return response.json()["data"][0]["embedding"]
 
 def A9(filename='/data/comments.txt', output_filename='/data/comments-similar.txt'):
@@ -241,6 +247,7 @@ def A9(filename='/data/comments.txt', output_filename='/data/comments-similar.tx
     with open(output_filename, 'w') as f:
         f.write(most_similar[0] + '\n')
         f.write(most_similar[1] + '\n')
+
 
 def A10(filename='/data/ticket-sales.db', output_filename='/data/ticket-sales-gold.txt', query="SELECT SUM(units * price) FROM tickets WHERE type = 'Gold'"):
     # Connect to the SQLite database
