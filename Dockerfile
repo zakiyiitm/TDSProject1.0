@@ -17,7 +17,11 @@ ENV PATH="/root/.local/bin:$PATH"
 WORKDIR /app
 
 # Copy application files
-COPY app.py /app
+# Previously, only app.py was copied. Now, we're copying the entire directory containing app.py and tasksA.py.
+COPY . /app
 
-# Explicitly set the correct binary path and use `sh -c`
+# Expose port 8000
+EXPOSE 8000
+
+# Explicitly set the correct binary path and use `sh -c` to run the FastAPI app
 CMD ["/root/.local/bin/uv", "run", "app.py"]
