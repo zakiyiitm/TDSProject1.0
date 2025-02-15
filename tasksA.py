@@ -28,12 +28,17 @@ def A1(email="23ds3000040@ds.study.iitm.ac.in"):
         raise HTTPException(status_code=500, detail=f"Error: {e.stderr}")
 # A1()
 def A2(prettier_version="prettier@3.4.2", filename="/data/format.md"):
-    command = [r"C:\Program Files\nodejs\npx.cmd", prettier_version, "--write", filename]
     try:
+        # Ensure Prettier is installed
+        subprocess.run(["npm", "install", prettier_version], check=True)
+
+        # Use npx to run prettier
+        command = ["npx", prettier_version, "--write", filename]
         subprocess.run(command, check=True)
         print("Prettier executed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
+
 
 def A3(filename='/data/dates.txt', targetfile='/data/dates-wednesdays.txt', weekday=2):
     input_file = filename
